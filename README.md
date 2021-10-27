@@ -15,7 +15,6 @@ The code was tested on:
 
 - selenium
 - time
-- time
 - smtplib
 - email
 
