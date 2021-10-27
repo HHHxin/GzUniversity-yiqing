@@ -49,17 +49,21 @@ pip install -r requirements
 **3、填写yiqing-v3.0.py 里的配置信息**
 
 * 打卡账号
-username = ""
-* 打卡账号的密码
-password = ""
-* 接收打卡提示的邮箱
-userEmail = ''
-* 发送打卡提示的邮箱（需开启STMP/POP协议）
-senderEmail = ''
-* 发送打卡提示邮箱的验证码（开启STMP/POP协议时给的验证码）
-senderEmailPasswd = ''
-**4、测试程序**（Windows系统为例）
+  username = ""
 
+* 打卡账号的密码
+  password = ""
+
+* 接收打卡提示的邮箱
+  userEmail = ''
+
+* 发送打卡提示的邮箱（需开启STMP/POP协议）
+  senderEmail = ''
+
+* 发送打卡提示邮箱的验证码（开启STMP/POP协议时给的验证码）
+  senderEmailPasswd = ''
+
+**4、测试程序**（Windows系统为例）
 （1）配置有python环境，直接双击执行（可能出现报错的情况看不到）
 
 （2）Win+R，输入cmd，跳转到程序所在目录，采用 
