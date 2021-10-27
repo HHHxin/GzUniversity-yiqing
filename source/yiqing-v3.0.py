@@ -3,10 +3,11 @@
 
 # In[1]:
 
+
 # encoding:utf-8
+import os
 import selenium
 import time
-from PIL import Image
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import smtplib
@@ -43,6 +44,10 @@ failMsg = '''
     <h2>打卡程序警告：打卡失败了！！！</h2>
     <p>请手动打卡！！！[doge]</p>
     '''
+failMsgChormeDirverError = '''
+    <h2>打卡程序警告：打卡失败了！！！</h2>
+    <p>网络出现错误！或者此ChormeDriver版本无法支持Chrome浏览器，无法正常启动自动打卡程序，请检查ChromeDriver与Chrome版本是否兼容！！！</p>
+    '''
 
 # message: 邮件正文，subject:邮箱主题
 def sendQQMail(message,subject):
@@ -64,14 +69,20 @@ def sendQQMail(message,subject):
         
     return ret
 
-for i in range(timesToRepeat):
-    
-    chrome_options = Options()
-    chrome_options.add_argument('--headless')
-    driver = webdriver.Chrome(options= chrome_options)
-    print("打开自动测试浏览器！！")
 
-    driver.get(url)
+for i in range(timesToRepeat):
+    try:
+        chrome_options = Options()
+        chrome_options.add_argument('--headless')
+        # global driver
+        driver = webdriver.Chrome(options= chrome_options)
+        print("打开自动测试浏览器！！")
+
+        driver.get(url)
+    except BaseException:
+        print("ChromeDriver版本无法支持Chrome浏览器或者网络错误！")
+        sendQQMail(failMsgChormeDirverError,'打卡助手警告：打卡失败了！！！')
+        os._exit(0)
 
     time.sleep(3)
 

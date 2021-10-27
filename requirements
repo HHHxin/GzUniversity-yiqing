@@ -1,6 +1,4 @@
-pillow
 selenium
 time
-base64
-json
-requests
+smtplib
+email
