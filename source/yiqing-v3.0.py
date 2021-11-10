@@ -8,6 +8,9 @@
 import os
 import selenium
 import time
+import json
+import requests
+import datetime
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import smtplib
@@ -46,7 +49,7 @@ failMsg = '''
     '''
 failMsgChormeDirverError = '''
     <h2>打卡程序警告：打卡失败了！！！</h2>
-    <p>网络出现错误！或者此ChormeDriver版本无法支持Chrome浏览器，无法正常启动自动打卡程序，请检查ChromeDriver与Chrome版本是否兼容！！！</p>
+    <p>此ChormeDriver版本无法支持Chrome浏览器，无法正常启动自动打卡程序，请检查ChromeDriver与Chrome版本是否兼容！！！</p>
     '''
 
 # message: 邮件正文，subject:邮箱主题
@@ -69,7 +72,43 @@ def sendQQMail(message,subject):
         
     return ret
 
+# 获取爱词霸每日鸡汤
+def get_iciba_everyday_chicken_soup():
+    url = 'http://open.iciba.com/dsapi/'  # 爱词霸网站地址
+    r = requests.get(url) 
+    all = json.loads(r.text) # 获取到json格式的内容，内容很多
+    English = all['content']  # 提取json中的英文鸡汤
+    Chinese = all['note']  # 提取json中的中文鸡汤
+    image_url = all["fenxiang_img"] # 提取json中的图片链接
+    out = '<br/><h3>每日一句</h3><p>%s</p><p>%s</p><p><img src="%s" alt="每日一句"></p>'%(English, Chinese, image_url)
+    return out
 
+# 获取当天天气
+def get_weather(city):
+    url = 'http://wthrcdn.etouch.cn/weather_mini?city={}'.format(city)
+    f=requests.get(url)
+    wea_dict1=json.loads(f.text)
+    #print(jsons['data']['forecast'])
+    # for i in jsons['data']['forecast']:
+    #     print(i['date'])
+    #     print(i['high'])
+    #     print(i['low'])
+    #     print(i['fengli'])
+    #     print(i['type'])
+    if wea_dict1['status'] != 1000 :
+        return "<br/><h3>天气预报</h3><p>天气api出错！！！无法查看天气！！！</p>"
+
+    format_str = "<br/><h3>天气预报</h3><p><b>日期：</b>%s</p><p><b>坐标：</b>%s</p><p><b>天气：</b>%s</p><p><b>温度：</b>%s</p><p><b>风力：</b>%s</p>"
+    date = datetime.datetime.now().strftime('%Y-%m-%d')
+    wea_dict =  wea_dict1['data']['forecast'][0]
+    wea_type = wea_dict['type']
+    wind = wea_dict['fengli'].split('CDATA[')[1][:2]
+    temp = wea_dict['low'] + '~' + wea_dict['high']
+    out = format_str % (date, city, wea_type, temp, wind)
+    return out
+
+
+# 打卡程序运行逻辑
 for i in range(timesToRepeat):
     try:
         chrome_options = Options()
@@ -80,8 +119,8 @@ for i in range(timesToRepeat):
 
         driver.get(url)
     except BaseException:
-        print("ChromeDriver版本无法支持Chrome浏览器或者网络错误！")
-        sendQQMail(failMsgChormeDirverError,'打卡助手警告：打卡失败了！！！')
+        print("ChromeDriver版本无法支持Chrome浏览器！")
+        sendQQMail(failMsgChormeDirverError+get_weather('广州')+get_iciba_everyday_chicken_soup(),'打卡助手警告：打卡失败了！！！')
         os._exit(0)
 
     time.sleep(3)
@@ -255,7 +294,7 @@ for i in range(timesToRepeat):
 
         # 最后提交的一次如果提交失败则发送邮件
         if i == timesToRepeat-1 :
-            sendQQMail(failMsg,'打卡助手警告：打卡失败了！！！')
+            sendQQMail(failMsg+get_weather('广州')+get_iciba_everyday_chicken_soup(),'打卡助手警告：打卡失败了！！！')
         # 跳出当前循环
         continue
     
@@ -265,6 +304,6 @@ for i in range(timesToRepeat):
     print("打卡成功")
 
     # 若打卡成功一定会收到邮件提示，否则打卡失败（打卡失败有可能没有发送邮件）
-    sendQQMail(successMsg,'打开助手提示您：打卡成功了！！！')
+    sendQQMail(successMsg+get_weather('广州')+get_iciba_everyday_chicken_soup(),'打开助手提示您：打卡成功了！！！')
     break
 

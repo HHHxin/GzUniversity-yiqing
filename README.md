@@ -5,7 +5,7 @@
 
 
 
-### 注：本程序使用Python语言所编写，需要进行相应的环境配置。所需要的类库包括有selenium、time、smtplib、email
+### 注：本程序使用Python语言所编写，需要进行相应的环境配置。所需要的类库包括有selenium、time、smtplib、email、requests、json、datetime
 
 selenium需要在本机环境中进行一定的配置，相关的配置可自行百度即可。本程序所使用的是ChromeDriver（谷歌自动化测试浏览器）
 
@@ -17,6 +17,9 @@ The code was tested on:
 - time
 - smtplib
 - email
+- requests
+- json
+- datetime
 
 To install requirement:
 
