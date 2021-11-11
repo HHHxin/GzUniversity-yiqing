@@ -79,8 +79,9 @@ def get_iciba_everyday_chicken_soup():
     all = json.loads(r.text) # 获取到json格式的内容，内容很多
     English = all['content']  # 提取json中的英文鸡汤
     Chinese = all['note']  # 提取json中的中文鸡汤
+    Voice = all['tts']  # 提取音频链接
     image_url = all["fenxiang_img"] # 提取json中的图片链接
-    out = '<br/><h3>每日一句</h3><p>%s</p><p>%s</p><p><img src="%s" alt="每日一句"></p>'%(English, Chinese, image_url)
+    out = '<br/><h3>每日一句</h3><p>%s</p><p>%s</p><p><p><video controls="" autoplay="" name="media"><source src="%s" type="audio/mpeg"></video></p><img src="%s" alt="每日一句"></p>'%(English, Chinese, Voice, image_url)
     return out
 
 # 获取当天天气
