@@ -26,11 +26,12 @@ password = ""
 # 打卡尝试次数
 timesToRepeat = 5
 # 打卡网址
-url = 'https://newcas.gzhu.edu.cn/cas/login?service=http%3A%2F%2Fyqtb.gzhu.edu.cn%2Finfoplus%2Flogin%3FretUrl%3Dhttp%253A%252F%252Fyqtb.gzhu.edu.cn%252Finfoplus%252Foauth2%252Fauthorize%253Fx_redirected%253Dtrue%2526scope%253Dprofile%252Bprofile_edit%252Bapp%252Btask%252Bprocess%252Bsubmit%252Bprocess_edit%252Btriple%252Bstats%252Bsys_profile%252Bsys_enterprise%252Bsys_triple%252Bsys_stats%252Bsys_entrust%252Bsys_entrust_edit%2526response_type%253Dcode%2526redirect_uri%253Dhttp%25253A%25252F%25252Fyq.gzhu.edu.cn%25252Ftaskcenter%25252Fwall%25252Fendpoint%25253FretUrl%25253Dhttp%2525253A%2525252F%2525252Fyq.gzhu.edu.cn%2525252Ftaskcenter%2525252Fworkflow%2525252Findex%2526client_id%253D1640e2e4-f213-11e3-815d-fa163e9215bb'
+# url = 'https://newcas.gzhu.edu.cn/cas/login?service=http%3A%2F%2Fyqtb.gzhu.edu.cn%2Finfoplus%2Flogin%3FretUrl%3Dhttp%253A%252F%252Fyqtb.gzhu.edu.cn%252Finfoplus%252Foauth2%252Fauthorize%253Fx_redirected%253Dtrue%2526scope%253Dprofile%252Bprofile_edit%252Bapp%252Btask%252Bprocess%252Bsubmit%252Bprocess_edit%252Btriple%252Bstats%252Bsys_profile%252Bsys_enterprise%252Bsys_triple%252Bsys_stats%252Bsys_entrust%252Bsys_entrust_edit%2526response_type%253Dcode%2526redirect_uri%253Dhttp%25253A%25252F%25252Fyq.gzhu.edu.cn%25252Ftaskcenter%25252Fwall%25252Fendpoint%25253FretUrl%25253Dhttp%2525253A%2525252F%2525252Fyq.gzhu.edu.cn%2525252Ftaskcenter%2525252Fworkflow%2525252Findex%2526client_id%253D1640e2e4-f213-11e3-815d-fa163e9215bb'
+url = 'https://yq.gzhu.edu.cn'
 # 邮箱服务器地址
 emailServerAddress = 'smtp.qq.com'
 # 邮箱服务器端口号
-emailServerPort = 25
+emailServerPort = 465
 # 接收打卡提示的邮箱
 userEmail = ''
 # 发送打卡提示的邮箱（需开启STMP/POP协议）
@@ -52,6 +53,8 @@ failMsgChormeDirverError = '''
     <p>此ChormeDriver版本无法支持Chrome浏览器，无法正常启动自动打卡程序，请检查ChromeDriver与Chrome版本是否兼容！！！</p>
     '''
 
+# In[3]:
+
 # message: 邮件正文，subject:邮箱主题
 def sendQQMail(message,subject):
     ret=True
@@ -61,7 +64,7 @@ def sendQQMail(message,subject):
         msg['To']=formataddr(["打卡程序用户",userEmail])              # 括号里的对应收件人邮箱昵称、收件人邮箱账号
         msg['Subject']=subject                # 邮件的主题，也可以说是标题
  
-        server=smtplib.SMTP(emailServerAddress, emailServerPort)  # 发件人邮箱中的SMTP服务器
+        server=smtplib.SMTP_SSL(emailServerAddress, emailServerPort)  # 发件人邮箱中的SMTP服务器
         server.login(senderEmail, senderEmailPasswd)  # 括号中对应的是发件人邮箱账号、邮箱密码
         server.sendmail(senderEmail,[userEmail,],msg.as_string())  # 括号中对应的是发件人邮箱账号、收件人邮箱账号、发送邮件
         server.quit()  # 关闭连接
@@ -124,7 +127,7 @@ for i in range(timesToRepeat):
         sendQQMail(failMsgChormeDirverError+get_weather('广州')+get_iciba_everyday_chicken_soup(),'打卡助手警告：打卡失败了！！！')
         os._exit(0)
 
-    time.sleep(3)
+    time.sleep(5)
 
     
     '''提交账户名跟密码'''
@@ -157,7 +160,7 @@ for i in range(timesToRepeat):
         continue
 
     '''触发学生健康状况申报按钮'''
-    time.sleep(2)
+    time.sleep(5)
     try:
         driver.find_element_by_link_text("学生健康状况申报").click()
         print("成功点击'学生健康状况申报'按钮！！")
@@ -172,7 +175,7 @@ for i in range(timesToRepeat):
         continue
 
     '''切换弹窗'''
-    time.sleep(2)
+    time.sleep(5)
     try:
         windows = driver.window_handles   # 获取该会话所有的窗口
         driver.switch_to.window(windows[-1])  # 跳转到最新的窗口
@@ -188,12 +191,42 @@ for i in range(timesToRepeat):
         continue
         
     '''触发开始上报按钮'''
-    time.sleep(2)
+    time.sleep(5)
     try:
         driver.find_element_by_id("preview_start_button").click()
         print("点击开始上报按钮！！")
     except BaseException:
         print("点击上报按钮失败？？")
+        
+        # 退出
+        driver.close() # 关闭当前窗口
+        driver.quit()  # 退出Chrome浏览器
+        
+        # 跳出当前循环
+        continue
+
+    '''触发本人身体状况按钮'''
+    time.sleep(8)
+    try:
+        driver.find_element_by_id("V1_CTRL243").click()
+        print("点击本人身体状况按钮成功！！")
+    except BaseException:
+        print("点击本人身体状况按钮失败？？")
+        
+        # 退出
+        driver.close() # 关闭当前窗口
+        driver.quit()  # 退出Chrome浏览器
+        
+        # 跳出当前循环
+        continue
+
+    '''触发是否外出按钮'''
+    time.sleep(2)
+    try:
+        driver.find_element_by_id("V1_CTRL238").click()
+        print("点击是否外出按钮成功！！")
+    except BaseException:
+        print("点击是否外出按钮失败？？")
         
         # 退出
         driver.close() # 关闭当前窗口
@@ -249,7 +282,7 @@ for i in range(timesToRepeat):
     # 进行确认勾选
     time.sleep(2)
     try:
-        driver.find_element_by_xpath("//*[@id='V1_CTRL82']").click()
+        driver.find_element_by_id("V1_CTRL82").click()
         print("勾选最后的确认按钮！！")
     except BaseException:
         print("确认按钮勾选失败？？")
